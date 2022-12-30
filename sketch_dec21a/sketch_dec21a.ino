@@ -8,18 +8,18 @@ const byte outputs[] = { 1, 9, 0, 8, 2, 7, 3, 6, 4, 5 };   // Rows
 #define inCount sizeof(inputs) / sizeof(inputs[0])
 #define outCount sizeof(outputs) / sizeof(outputs[0])
 
-const char keymap[outCount][inCount] = {
+const int keymap[outCount][inCount] = {
   // 21   20   19   18   15   14   16   10
-  { '`', '\\', '=', '-', '0', '9', '8', '7' },  // 1
-  { 'N', '6', '5', '4', '3', '2', '1', 'E' },   // 9
-  { 'B', 'N', ']', '[', 'p', 'o', 'i', 'u' },   // 0
-  { 'N', 'y', 't', 'r', 'e', 'w', 'q', 'T' },   // 8
-  { 'E', 'N', 'N', '\'', ';', 'l', 'k', 'j' },  // 2
-  { 'N', 'h', 'g', 'f', 'd', 's', 'a', 'C' },   // 7
-  { 'F', 'N', 'R', '/', '.', ',', 'm', 'n' },   // 3
-  { 'N', 'b', 'v', 'c', 'x', 'z', 'N', 'L' },   // 6
-  { 'R', 'N', 'W', 'F', 'N', 'N', 'N', 'S' },   // 4
-  { 'N', 'N', 'N', 'N', 'L', 'N', 'W', 'L' },   // 5
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },                             // 1
+  { NULL, '6', '5', '4', '3', '2', '1', KEY_ESC },                          // 9
+  { KEY_BACKSPACE, NULL, ']', '[', 'p', 'o', 'i', 'u' },                    // 0
+  { NULL, 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },                          // 8
+  { KEY_RETURN, NULL, NULL, '\'', ';', 'l', 'k', 'j' },                      // 2
+  { NULL, 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },                    // 7
+  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '/', '.', ',', 'm', NULL },       // 3
+  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, KEY_LEFT_SHIFT },                   // 6
+  { KEY_LEFT_GUI, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, 32 },  // 4
+  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },  // 5
 };
 
 // q, x, s, d, f = broken
@@ -28,8 +28,8 @@ const char keymap[outCount][inCount] = {
 int postOutputToLowDelayMicroseconds = 5;
 int postOutputToHighDelayMicroseconds = 500;
 
-int repeatsBeforeSecondPress = 90; // 350;  // Number of repeats a switch encounters when a key is held down before the second press is lodged
-int repeatPressDelay = 6; // 15;           // Number of repeats a switch encounters between each press that is lodged
+int repeatsBeforeSecondPress = 90;  // 350;  // Number of repeats a switch encounters when a key is held down before the second press is lodged
+int repeatPressDelay = 6;           // 15;           // Number of repeats a switch encounters between each press that is lodged
 
 int currentKeyRepeatCount[outCount][inCount] = { 0 };
 bool firstKeyPressFinished[outCount][inCount] = { false };
@@ -72,7 +72,7 @@ void loop() {
           Serial.println(keymap[i][j]);
           Keyboard.write(keymap[i][j]);
         }
-        // time for second press - spam mode
+        // time for second press - spam modeI
         else if (firstKeyPressFinished[i][j] && currentKeyRepeatCount[i][j] > repeatPressDelay) {
           Serial.println(keymap[i][j]);
           Keyboard.write(keymap[i][j]);
@@ -84,7 +84,7 @@ void loop() {
         }
         currentKeyRepeatCount[i][j]++;
       }
-
+      // key recently released so reset
       else if (currentKeyRepeatCount[i][j] != 0) {
         currentKeyRepeatCount[i][j] = 0;
         firstKeyPressFinished[i][j] = false;
@@ -97,7 +97,7 @@ void loop() {
 
 
 
-// PRINT KEYMAP
+// PRINT keymap
 // for (int i = 0; i < outCount; i++) {
 //   for (int j = 0; j < inCount; j++) {
 //     // Serial.print(keymap[i][j]);
