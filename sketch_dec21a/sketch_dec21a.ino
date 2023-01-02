@@ -9,20 +9,21 @@ const byte outputs[] = { 1, 9, 0, 8, 2, 7, 3, 6, 4, 5 };   // Rows
 #define outCount sizeof(outputs) / sizeof(outputs[0])
 
 const int keymap[outCount][inCount] = {
-  // 21   20   19   18   15   14   16   10
-  { '`', '\\', '=', '-', '0', '9', '8', '7' },                             // 1
-  { NULL, '6', '5', '4', '3', '2', '1', KEY_ESC },                          // 9
-  { KEY_BACKSPACE, NULL, ']', '[', 'p', 'o', 'i', 'u' },                    // 0
-  { NULL, 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },                          // 8
-  { KEY_RETURN, NULL, NULL, '\'', ';', 'l', 'k', 'j' },                      // 2
-  { NULL, 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },                    // 7
-  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '/', '.', ',', 'm', NULL },       // 3
-  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, KEY_LEFT_SHIFT },                   // 6
-  { KEY_LEFT_GUI, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, 32 },  // 4
-  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },  // 5
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },                                   // 1 (output pins)
+  { NULL, '6', '5', '4', '3', '2', '1', KEY_ESC },                               // 9
+  { KEY_BACKSPACE, NULL, ']', '[', 'p', 'o', 'i', 'u' },                         // 0
+  { NULL, 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },                               // 8
+  { KEY_RETURN, NULL, NULL, '\'', ';', 'l', 'k', 'j' },                          // 2
+  { NULL, 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },                         // 7
+  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '/', '.', ',', 'm', 'n' },              // 3
+  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, KEY_LEFT_SHIFT },                       // 6
+  { KEY_LEFT_CTRL, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, ' ' },  // 4
+  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },   // 5
 };
 
-// q, x, s, d, f = broken
+// keys with hardware issues
+// q, x, s, d, f
 
 // Press speed and delay configuration
 int postOutputToLowDelayMicroseconds = 5;
@@ -34,6 +35,7 @@ int repeatPressDelay = 6;           // 15;           // Number of repeats a swit
 int currentKeyRepeatCount[outCount][inCount] = { 0 };
 bool firstKeyPressFinished[outCount][inCount] = { false };
 
+int keyGroup[10] = { NULL }; // holds a collection of keys to press at once (e.g. shift + e = E or crtl+w = W)
 
 void setup() {
   for (int i = 0; i < inCount; i++) {
@@ -59,13 +61,6 @@ void loop() {
 
       // Key pressed, if statement entered numerous times for key held down
       if (digitalRead(inputs[j]) == LOW) {
-        // Serial.print("col: ");  // prints every time :(
-        // Serial.print(inputs[j]);
-        // Serial.print(" row: ");
-        // Serial.print(outputs[i]);
-        // Serial.print(" key: ");
-        // Serial.println(keymap[i][j]);
-
         // 3 cases
         // first press
         if (currentKeyRepeatCount[i][j] == 0) {
@@ -95,15 +90,11 @@ void loop() {
   }
 }
 
-
-
-// PRINT keymap
-// for (int i = 0; i < outCount; i++) {
-//   for (int j = 0; j < inCount; j++) {
-//     // Serial.print(keymap[i][j]);
-//     Serial.print(firstKeyPressFinished[i][j]);
-//     Serial.print(", ");
-//   }
-//   Serial.print("\n");
-// }
-// Serial.print("\n\n\n");
+void printKey(input, output) {
+  Serial.print("input col: ");
+  Serial.print(input);
+  Serial.print(", output row: ");
+  Serial.print(output);
+  Serial.print(", key: ");
+  Serial.println(keymap[output][input]);
+}
