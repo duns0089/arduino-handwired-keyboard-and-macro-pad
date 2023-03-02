@@ -30,11 +30,13 @@ const int modifierKeys[] = {
   KEY_RIGHT_ALT,
   KEY_LEFT_ALT,
   KEY_LEFT_GUI,
-  KEY_LEFT_CTRL
+  KEY_LEFT_CTRL,
+  KEY_CAPS_LOCK
 };
 // #define modCount sizeof(int) / sizeof(modifierKeys)
 int modCount = 8;
 
+bool keyPressed = false;          // a key in the cycle has been pressed, cycle being the for loop for each input
 bool modKeyPress = false;         // has mod been selected, wiped after release
 bool alphaPressAfterMod = false;  // has alpha been selected when modKeyPress = true
 
@@ -66,7 +68,6 @@ void setup() {
 }
 
 void loop() {
-
   for (int i = 0; i < outCount; i++) {
     digitalWrite(outputs[i], LOW);
     delayMicroseconds(postOutputToLowDelayMicroseconds);
@@ -75,13 +76,14 @@ void loop() {
 
       // Key pressed, if statement entered numerous times for key held down
       if (digitalRead(inputs[j]) == LOW) {
+          keyPressed = true;
 
-        // check is keypressed is mod or alpha after mod
-        if (isModifier(j, i)) {
-          modKeyPress = true;
-        } else if (isAlphaAfterMod(j, i)) {
-          alphaPressAfterMod = true;
-        }
+          // // check is keypressed is mod or alpha after mod
+          // if (isModifier(j, i)) {
+          //   modKeyPress = true;
+          // } else if (isAlphaAfterMod(j, i)) {
+          //   alphaPressAfterMod = true;
+          // }
 
         // 3 cases
         // first press
@@ -98,7 +100,7 @@ void loop() {
           currentKeyRepeatCount[i][j] = 1;  // start repeat count again
         }
         // ready for spam mode
-        else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress) {
+        else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !isModifier(j, i)) {
           Serial.println("ready for spam");
           firstKeyPressFinished[i][j] = true;  // ready for spam
         }
@@ -115,6 +117,8 @@ void loop() {
     digitalWrite(outputs[i], HIGH);
     delayMicroseconds(postOutputToHighDelayMicroseconds);
   }
+
+  keyPressed = false; // cycle over
 }
 
 bool isModifier(int input, int output) {
