@@ -113,19 +113,128 @@ N, b, v, c, x, z, N, L,
 R, N, W, F, N, N, N, S, 
 N, N, N, N, L, N, W, L, 
 
+const char keymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },  // 1
+  { 'N', '6', '5', '4', '3', '2', '1', 'E' },   // 9
+  { 'B', 'N', ']', '[', 'p', 'o', 'i', 'u' },   // 0
+  { 'N', 'y', 't', 'r', 'e', 'w', 'q', 'T' },   // 8
+  { 'E', 'N', 'N', '\'', ';', 'l', 'k', 'j' },  // 2
+  { 'N', 'h', 'g', 'f', 'd', 's', 'a', 'C' },   // 7
+  { 'F', 'N', 'R', '/', '.', ',', 'm', 'n' },   // 3
+  { 'N', 'b', 'v', 'c', 'x', 'z', 'N', 'L' },   // 6
+  { 'R', 'N', 'W', 'F', 'N', 'N', 'N', 'S' },   // 4
+  { 'N', 'N', 'N', 'N', 'L', 'N', 'W', 'L' },   // 5
+};
 
+const char singleKeymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },  // 1
+  { NULL, '6', '5', '4', '3', '2', '1', NULL },   // 9
+  { NULL, NULL, ']', '[', 'p', 'o', 'i', 'u' },   // 0
+  { NULL, 'y', 't', 'r', 'e', 'w', 'q', NULL },   // 8
+  { NULL, NULL, NULL, '\'', ';', 'l', 'k', 'j' },  // 2
+  { NULL, 'h', 'g', 'f', 'd', 's', 'a', NULL },   // 7
+  { NULL, NULL, NULL, '/', '.', ',', 'm', 'n' },   // 3
+  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, 'L' },   // 6
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },   // 4
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },   // 5
+};
 
+const char keymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },  // 1
+  { 'N', '6', '5', '4', '3', '2', '1', 'E' },   // 9
+  { 'B', 'N', ']', '[', 'p', 'o', 'i', 'u' },   // 0
+  { 'N', 'y', 't', 'r', 'e', 'w', 'q', 'T' },   // 8
+  { 'E', 'N', 'N', '\'', ';', 'l', 'k', 'j' },  // 2
+  { 'N', 'h', 'g', 'f', 'd', 's', 'a', 'C' },   // 7
+  { 'F', 'N', 'R', '/', '.', ',', 'm', 'n' },   // 3
+  { 'N', 'b', 'v', 'c', 'x', 'z', 'N', 'L' },   // 6
+  { 'R', 'N', 'W', 'F', 'N', 'N', 'N', 'S' },   // 4
+  { 'N', 'N', 'N', 'N', 'L', 'N', 'W', 'L' },   // 5
+};
 
+const int keymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },  // 1
+  { 'N', '6', '5', '4', '3', '2', '1', KEY_ESC },   // 9
+  { KEY_BACKSPACE, 'N', ']', '[', 'p', 'o', 'i', 'u' },   // 0
+  { 'N', 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },   // 8
+  { KEY_RETURN, 'N', 'N', '\'', ';', 'l', 'k', 'j' },  // 2
+  { 'N', 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },   // 7
+  { 'KEY_KP_ENTER', 'N', KEY_RIGHT_SHIFT, '/', '.', ',', 'm', 'n' },   // 3
+  { 'N', 'b', 'v', 'c', 'x', 'z', 'N', KEY_LEFT_SHIFT },   // 6
+  { KEY_LEFT_GUI, 'N', KEY_RIGHT_GUI, KEY_RIGHT_ALT, 'N', 'N', 'N', 32},   // 4
+  { 'N', 'N', 'N', 'N', KEY_LEFT_ALT, 'N', KEY_LEFT_GUI, KEY_LEFT_CTRL },   // 5
+};
 
+const int keymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },                                  // 1 (output pins)
+  { NULL, '6', '5', '4', '3', '2', '1', KEY_ESC },                              // 9
+  { KEY_BACKSPACE, NULL, ']', '[', 'p', 'o', 'i', 'u' },                        // 0
+  { NULL, 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },                              // 8
+  { KEY_RETURN, NULL, NULL, '\'', ';', 'l', 'k', 'j' },                         // 2
+  { NULL, 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },                        // 7
+  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '/', '.', ',', 'm', 'n' },             // 3
+  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, KEY_LEFT_SHIFT },                      // 6
+  { KEY_LEFT_CTRL, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, 32 },  // 4
+  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },  // 5
+};
 
+const int keymap_null[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 1 (output pins)
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 9
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 0
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 8
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 2
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 7
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 3
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 6
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 4
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },  // 5
+};
 
+const int keymap[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { '`', '\\', '=', '-', '0', '9', '8', '7' },                                   // 1 (output pins)
+  { NULL, '6', '5', '4', '3', '2', '1', KEY_ESC },                               // 9
+  { KEY_BACKSPACE, NULL, ']', '[', 'p', 'o', 'i', 'u' },                         // 0
+  { NULL, 'y', 't', 'r', 'e', 'w', 'q', KEY_TAB },                               // 8
+  { KEY_RETURN, NULL, NULL, '\'', ';', 'l', 'k', 'j' },                          // 2
+  { NULL, 'h', 'g', 'f', 'd', 's', 'a', KEY_CAPS_LOCK },                         // 7
+  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '/', '.', ',', 'm', 'n' },              // 3
+  { NULL, 'b', 'v', 'c', 'x', 'z', NULL, KEY_LEFT_SHIFT },                       // 6
+  { KEY_LEFT_CTRL, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, ' ' },  // 4
+  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },   // 5
+};
 
+const int keymap_shift[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { '~', '|', '+', '_', ')', '(', '*', '&' },                                    // 1 (output pins)
+  { NULL, '^', '%', '$', '#', '@', '!', '~' },                                   // 9
+  { KEY_BACKSPACE, NULL, '}', '{', 'P', 'O', 'I', 'U' },                         // 0
+  { NULL, 'Y', 'T', 'R', 'E', 'W', 'Q', KEY_TAB },                               // 8
+  { KEY_RETURN, NULL, NULL, '\"', ':', 'L', 'K', 'J' },                          // 2
+  { NULL, 'H', 'G', 'F', 'D', 'S', 'A', KEY_CAPS_LOCK },                         // 7
+  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '?', '>', '<', 'M', 'N' },              // 3
+  { NULL, 'B', 'V', 'C', 'X', 'Z', NULL, KEY_LEFT_SHIFT },                       // 6
+  { KEY_LEFT_CTRL, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, ' ' },  // 4
+  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },   // 5
+};
 
-
-
-
-
-
-
-
-
+const int keymap_fn1[outCount][inCount] = {
+  // 21   20   19   18   15   14   16   10 (input pins)
+  { NULL, NULL, KEY_F12, KEY_F11, KEY_F10, KEY_F9, KEY_F8, KEY_F7 },  // 1 (output pins)
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, '~' },                  // 9
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 0
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 8
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 2
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 7
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 3
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 6
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 4
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                 // 5
+};
