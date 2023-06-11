@@ -88,20 +88,15 @@ void loop() {
         // 3 cases
         // first press
         if (currentKeyRepeatCount[i][j] == 0) {
-          Serial.print(keymap[i][j]);
-          Serial.println(" first");
           Keyboard.press(keymap[i][j]);
         }
         // time for second press - spam mode
         else if (firstKeyPressFinished[i][j] && currentKeyRepeatCount[i][j] > repeatPressDelay) {
-          Serial.print(keymap[i][j]);
-          Serial.println(" spam");
           Keyboard.press(keymap[i][j]);
           currentKeyRepeatCount[i][j] = 1;  // start repeat count again
         }
         // ready for spam mode
         else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !isModifier(j, i)) {
-          Serial.println("ready for spam");
           firstKeyPressFinished[i][j] = true;  // ready for spam
         }
 
@@ -123,10 +118,8 @@ void loop() {
 
 bool isModifier(int input, int output) {
   int key = keymap[output][input];
-  // Serial.println(modCount);g
   for (int i = 0; i < modCount; i++) {
     if (key == modifierKeys[i]) {
-      Serial.println("isModifier: mod key pressed");
       return true;
     }
   }
