@@ -25,20 +25,6 @@ const int keymap_default[outCount][inCount] = {
   { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },  // 5
 };
 
-const int keymap_shift[outCount][inCount] = {
-  // 21   20   19   18   15   14   16   10 (input pins)
-  { '~', '|', '+', '_', ')', '(', '*', '&' },                                    // 1 (output pins)
-  { NULL, '^', '%', '$', '#', '@', '!', '~' },                                   // 9
-  { KEY_BACKSPACE, NULL, '}', '{', 'P', 'O', 'I', 'U' },                         // 0
-  { NULL, 'Y', 'T', 'R', 'E', 'W', 'Q', KEY_TAB },                               // 8
-  { KEY_RETURN, NULL, NULL, '\"', ':', 'L', 'K', 'J' },                          // 2
-  { NULL, 'H', 'G', 'F', 'D', 'S', 'A', KEY_CAPS_LOCK },                         // 7
-  { KEY_KP_ENTER, NULL, KEY_RIGHT_SHIFT, '?', '>', '<', 'M', 'N' },              // 3
-  { NULL, 'B', 'V', 'C', 'X', 'Z', NULL, KEY_LEFT_SHIFT },                       // 6
-  { KEY_LEFT_CTRL, NULL, KEY_RIGHT_GUI, KEY_RIGHT_ALT, NULL, NULL, NULL, ' ' },  // 4
-  { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },   // 5
-};
-
 const int keymap_fn1[outCount][inCount] = {
   { NULL, NULL, KEY_F12, KEY_F11, KEY_F10, KEY_F9, KEY_F8, KEY_F7 },
   { NULL, KEY_F6, KEY_F5, KEY_F4, KEY_F3, KEY_F2, KEY_F1, '~' },
@@ -79,8 +65,26 @@ const int modifierKeys[] = {
   fn1,
   fn2,
 };
+
+int modifierMap[][2] = {
+  { KEY_RIGHT_SHIFT, false },
+  { KEY_LEFT_SHIFT, false },
+  { KEY_RIGHT_CTRL, false },
+  { KEY_RIGHT_GUI, false },
+  { KEY_RIGHT_ALT, false },
+  { KEY_LEFT_ALT, false },
+  { KEY_LEFT_GUI, false },
+  { KEY_LEFT_CTRL, false },
+  { KEY_CAPS_LOCK, false },
+};
+
+int layerMap[][2] = {
+  { fn1, false },
+  { fn2, false },
+};
+
 // #define modCount sizeof(int) / sizeof(modifierKeys)
-int modCount = 8;
+int modCount = 9;
 
 bool shiftPressed = false;
 bool fn1Pressed = false;
@@ -91,8 +95,8 @@ bool modKeyPress = false;         // has mod been selected, wiped after release
 bool alphaPressAfterMod = false;  // has alpha been selected when modKeyPress = true
 
 // Press speed and delay configuration
-int postOutputToLowDelayMicroseconds = 5; // 5
-int postOutputToHighDelayMicroseconds = 500; //500
+int postOutputToLowDelayMicroseconds = 5;     // 5
+int postOutputToHighDelayMicroseconds = 500;  //500
 
 int repeatsBeforeSecondPress = 90;  // 350;  // Number of repeats a switch encounters when a key is held down before the second press is lodged
 int repeatPressDelay = 6;           // 15;           // Number of repeats a switch encounters between each press that is lodged
@@ -140,16 +144,20 @@ void loop() {
     delayMicroseconds(postOutputToHighDelayMicroseconds);
   }
   if (keyPressed == false) {
-    shiftPressed = false;
-    fn1Pressed = false;
-    fn2Pressed = false;
+    // shiftPressed = false;
+    for (int i = 0; i < modCount; i++) {
+      modifierMap[i][1] = false;
+    }
+
+    layerMap[0][1] = false;
+    layerMap[1][1] = false;
   } else {
     keyPressed = false;
   }
 }
 
 void handleKeyPressed(int i, int j) {
-  bool modKey = isModifier(j, i);
+  modKeyPress = isModOrLayer(j, i);
 
   // 3 cases
   // first press
@@ -162,7 +170,7 @@ void handleKeyPressed(int i, int j) {
     currentKeyRepeatCount[i][j] = 1;  // start repeat count again
   }
   // ready for spam mode
-  else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !modKey) {
+  else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !modKeyPress) {
     firstKeyPressFinished[i][j] = true;  // ready for spam
   }
 
@@ -171,41 +179,71 @@ void handleKeyPressed(int i, int j) {
 }
 
 void pressKey(int i, int j) {
-  if (shiftPressed) {
-    // Keyboard.press(keymap_shift[i][j]);
-    Keyboard.press(KEY_LEFT_SHIFT);
-    Keyboard.press(keymap_default[i][j]);
-  } else if (fn1Pressed) {
+  // add mods to press
+  for (int i = 0; i < modCount; i++) {
+    if (modifierMap[i][1]) {
+      Keyboard.press(modifierMap[i][0]);
+    }
+  }
+
+  // get layer, fn1 prioritized
+  if (layerMap[0][1]) {
     Keyboard.press(keymap_fn1[i][j]);
-  } else if (fn2Pressed) {
+  } else if (layerMap[1][1]) {
     Keyboard.press(keymap_fn2[i][j]);
   } else {
     Keyboard.press(keymap_default[i][j]);
   }
 }
 
-bool isModifier(int input, int output) {
+bool isModOrLayer(int input, int output) {
   int key = keymap_default[output][input];
+  bool result = false;
   for (int i = 0; i < modCount; i++) {
+    // temp shift as layer, should move to mod combo
     if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
       shiftPressed = true;
     }
-    if (key == fn1) {
-      fn1Pressed = true;
+
+    // layer
+    if (key == layerMap[i][0]) {
+      layerMap[i][1] = true;
+      result = true;
     }
-    if (key == fn2) {
-      fn2Pressed = true;
-    }
-    if (key == modifierKeys[i]) {
-      return true;
+
+    // mod
+    if (key == modifierMap[i][0]) {
+      modifierMap[i][1] = true;
+      // Keyboard.press(modifierMap[i][0]);
+      result = true;
     }
   }
-  return false;
+
+  return result;
 }
+
+// bool isModifier(int input, int output) {
+//   int key = keymap_default[output][input];
+//   for (int i = 0; i < modCount; i++) {
+//     if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
+//       shiftPressed = true;
+//     }
+//     if (key == fn1) {
+//       fn1Pressed = true;
+//     }
+//     if (key == fn2) {
+//       fn2Pressed = true;
+//     }
+//     if (key == modifierKeys[i]) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
 
 bool isAlphaAfterMod(int input, int output) {
   int key = keymap_default[output][input];
-  if (modKeyPress && !isModifier(input, output)) {
+  if (modKeyPress && !isModOrLayer(input, output)) {
     Serial.println("isAlphaAfterMod: alpha after mod key pressed");
     return true;
   }
