@@ -52,20 +52,6 @@ const int keymap_fn2[outCount][inCount] = {
   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },                       // 5
 };
 
-const int modifierKeys[] = {
-  KEY_RIGHT_SHIFT,
-  KEY_LEFT_SHIFT,
-  KEY_RIGHT_CTRL,
-  KEY_RIGHT_GUI,
-  KEY_RIGHT_ALT,
-  KEY_LEFT_ALT,
-  KEY_LEFT_GUI,
-  KEY_LEFT_CTRL,
-  KEY_CAPS_LOCK,
-  fn1,
-  fn2,
-};
-
 int modifierMap[][2] = {
   { KEY_RIGHT_SHIFT, false },
   { KEY_LEFT_SHIFT, false },
@@ -83,16 +69,15 @@ int layerMap[][2] = {
   { fn2, false },
 };
 
-// #define modCount sizeof(int) / sizeof(modifierKeys)
 int modCount = 9;
+int layerCount = 2;
 
 bool shiftPressed = false;
 bool fn1Pressed = false;
 bool fn2Pressed = false;
 
 bool keyPressed = false;          // a key in the cycle has been pressed, cycle being the for loop for each input
-bool modKeyPress = false;         // has mod been selected, wiped after release
-bool alphaPressAfterMod = false;  // has alpha been selected when modKeyPress = true
+bool modOrLayerKeyPressed = false;         // has mod been selected, wiped after release
 
 // Press speed and delay configuration
 int postOutputToLowDelayMicroseconds = 5;     // 5
@@ -130,8 +115,6 @@ void loop() {
 
       // Key pressed, if statement entered numerous times for key held down
       if (digitalRead(inputs[j]) == LOW) {
-        keyPressed = true;
-
         handleKeyPressed(i, j);
       }
       // key recently released so reset
@@ -143,21 +126,23 @@ void loop() {
     digitalWrite(outputs[i], HIGH);
     delayMicroseconds(postOutputToHighDelayMicroseconds);
   }
+
+  // no key press, all fingers up for a small period of time
   if (keyPressed == false) {
-    // shiftPressed = false;
     for (int i = 0; i < modCount; i++) {
       modifierMap[i][1] = false;
     }
-
-    layerMap[0][1] = false;
-    layerMap[1][1] = false;
+    for (int i = 0; i < layerCount; i++) {
+      layerMap[i][1] = false;
+    }
   } else {
     keyPressed = false;
   }
 }
 
 void handleKeyPressed(int i, int j) {
-  modKeyPress = isModOrLayer(j, i);
+  keyPressed = true;
+  modOrLayerKeyPressed = isModOrLayer(j, i);
 
   // 3 cases
   // first press
@@ -170,19 +155,19 @@ void handleKeyPressed(int i, int j) {
     currentKeyRepeatCount[i][j] = 1;  // start repeat count again
   }
   // ready for spam mode
-  else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !modKeyPress) {
+  else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !modOrLayerKeyPressed) {
     firstKeyPressFinished[i][j] = true;  // ready for spam
   }
 
-  Keyboard.releaseAll();  // used to release all keys is Keyboard.press() is used
+  Keyboard.releaseAll();
   currentKeyRepeatCount[i][j]++;
 }
 
 void pressKey(int i, int j) {
   // add mods to press
-  for (int i = 0; i < modCount; i++) {
-    if (modifierMap[i][1]) {
-      Keyboard.press(modifierMap[i][0]);
+  for (int a = 0; a < modCount; a++) {
+    if (modifierMap[a][1]) {
+      Keyboard.press(modifierMap[a][0]);
     }
   }
 
@@ -222,28 +207,10 @@ bool isModOrLayer(int input, int output) {
   return result;
 }
 
-// bool isModifier(int input, int output) {
-//   int key = keymap_default[output][input];
-//   for (int i = 0; i < modCount; i++) {
-//     if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
-//       shiftPressed = true;
-//     }
-//     if (key == fn1) {
-//       fn1Pressed = true;
-//     }
-//     if (key == fn2) {
-//       fn2Pressed = true;
-//     }
-//     if (key == modifierKeys[i]) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
-
+bool alphaPressAfterMod = false;  // has alpha been selected when modOrLayerKeyPressed = true
 bool isAlphaAfterMod(int input, int output) {
   int key = keymap_default[output][input];
-  if (modKeyPress && !isModOrLayer(input, output)) {
+  if (modOrLayerKeyPressed && !isModOrLayer(input, output)) {
     Serial.println("isAlphaAfterMod: alpha after mod key pressed");
     return true;
   }
