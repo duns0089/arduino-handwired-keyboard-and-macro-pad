@@ -1,6 +1,3 @@
-// https://github.com/datulab/arduino-keyboard
-// https://www.youtube.com/watch?v=Iq3oY91x9Vk
-
 #include <Keyboard.h>
 
 const uint8_t inputs[] = { 21, 20, 19, 18, 15, 14, 16, 10 };  // Columns
@@ -22,35 +19,15 @@ const int keymap[outCount][inCount] = {
   { NULL, NULL, NULL, NULL, KEY_LEFT_ALT, NULL, KEY_LEFT_GUI, KEY_LEFT_CTRL },    // 5
 };
 
-const int modifierKeys[] = {
-  KEY_RIGHT_SHIFT,
-  KEY_LEFT_SHIFT,
-  KEY_RIGHT_CTRL,
-  KEY_RIGHT_GUI,
-  KEY_RIGHT_ALT,
-  KEY_LEFT_ALT,
-  KEY_LEFT_GUI,
-  KEY_LEFT_CTRL,
-  KEY_CAPS_LOCK
-};
-// #define modCount sizeof(int) / sizeof(modifierKeys)
-int modCount = 8;
-
-bool keyPressed = false;          // a key in the cycle has been pressed, cycle being the for loop for each input
-bool modKeyPress = false;         // has mod been selected, wiped after release
-bool alphaPressAfterMod = false;  // has alpha been selected when modKeyPress = true
-
 // Press speed and delay configuration
 int postOutputToLowDelayMicroseconds = 5;
 int postOutputToHighDelayMicroseconds = 500;
 
 int repeatsBeforeSecondPress = 90;  // 350;  // Number of repeats a switch encounters when a key is held down before the second press is lodged
-int repeatPressDelay = 6;           // 15;           // Number of repeats a switch encounters between each press that is lodged
+int repeatPressDelay = 9;           // 15;           // Number of repeats a switch encounters between each press that is lodged
 
 int currentKeyRepeatCount[outCount][inCount] = { 0 };
 bool firstKeyPressFinished[outCount][inCount] = { false };
-
-int keyGroup[10] = { NULL };  // holds a collection of keys to press at once (e.g. shift + e = E or crtl+w = W)
 
 void setup() {
   for (int i = 0; i < inCount; i++) {
@@ -73,34 +50,22 @@ void loop() {
     delayMicroseconds(postOutputToLowDelayMicroseconds);
 
     for (int j = 0; j < inCount; j++) {
-
-      // Key pressed, if statement entered numerous times for key held down
       if (digitalRead(inputs[j]) == LOW) {
-          keyPressed = true;
-
-          // // check is keypressed is mod or alpha after mod
-          // if (isModifier(j, i)) {
-          //   modKeyPress = true;
-          // } else if (isAlphaAfterMod(j, i)) {
-          //   alphaPressAfterMod = true;
-          // }
-
         // 3 cases
         // first press
         if (currentKeyRepeatCount[i][j] == 0) {
-          Keyboard.press(keymap[i][j]);
+          Keyboard.write(keymap[i][j]);
         }
         // time for second press - spam mode
         else if (firstKeyPressFinished[i][j] && currentKeyRepeatCount[i][j] > repeatPressDelay) {
-          Keyboard.press(keymap[i][j]);
+          Keyboard.write(keymap[i][j]);
           currentKeyRepeatCount[i][j] = 1;  // start repeat count again
         }
         // ready for spam mode
-        else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress && !isModifier(j, i)) {
+        else if (currentKeyRepeatCount[i][j] > repeatsBeforeSecondPress) {
           firstKeyPressFinished[i][j] = true;  // ready for spam
         }
 
-        Keyboard.releaseAll();  // used to release all keys is Keyboard.press() is used
         currentKeyRepeatCount[i][j]++;
       }
       // key recently released so reset
@@ -112,27 +77,6 @@ void loop() {
     digitalWrite(outputs[i], HIGH);
     delayMicroseconds(postOutputToHighDelayMicroseconds);
   }
-
-  keyPressed = false; // cycle over
-}
-
-bool isModifier(int input, int output) {
-  int key = keymap[output][input];
-  for (int i = 0; i < modCount; i++) {
-    if (key == modifierKeys[i]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool isAlphaAfterMod(int input, int output) {
-  int key = keymap[output][input];
-  if (modKeyPress && !isModifier(input, output)) {
-    Serial.println("isAlphaAfterMod: alpha after mod key pressed");
-    return true;
-  }
-  return false;
 }
 
 void printKey(int input, int output) {
