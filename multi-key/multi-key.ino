@@ -1,6 +1,3 @@
-// https://github.com/datulab/arduino-keyboard
-// https://www.youtube.com/watch?v=Iq3oY91x9Vk
-
 #include <Keyboard.h>
 
 const uint8_t inputs[] = { 21, 20, 19, 18, 15, 14, 16, 10 };  // Columns
@@ -72,10 +69,6 @@ int layerMap[][2] = {
 int modCount = 9;
 int layerCount = 2;
 
-bool shiftPressed = false;
-bool fn1Pressed = false;
-bool fn2Pressed = false;
-
 bool keyPressed = false;            // a key in the cycle has been pressed, cycle being the for loop for each input
 bool modOrLayerKeyPressed = false;  // has mod been selected, wiped after release
 
@@ -84,7 +77,7 @@ int postOutputToLowDelayMicroseconds = 5;     // 5
 int postOutputToHighDelayMicroseconds = 500;  //500
 
 int repeatsBeforeSecondPress = 90;  // 350;  // Number of repeats a switch encounters when a key is held down before the second press is lodged
-int repeatPressDelay = 6;           // 15;           // Number of repeats a switch encounters between each press that is lodged
+int repeatPressDelay = 9;           // 15;           // Number of repeats a switch encounters between each press that is lodged
 
 int currentKeyRepeatCount[outCount][inCount] = { 0 };
 bool firstKeyPressFinished[outCount][inCount] = { false };
@@ -128,6 +121,7 @@ void loop() {
   }
 
   // no key press, all fingers up for a small period of time
+  // TODO: check if necesary if map values are being set to fale in pressKey()
   if (keyPressed == false) {
     for (int i = 0; i < modCount; i++) {
       modifierMap[i][1] = false;
@@ -163,24 +157,30 @@ void handleKeyPressed(int i, int j) {
   currentKeyRepeatCount[i][j]++;
 }
 
+// invokes the keyboard.press function given the input and output
 void pressKey(int i, int j) {
   // add mods to press
   for (int a = 0; a < modCount; a++) {
     if (modifierMap[a][1]) {
       Keyboard.press(modifierMap[a][0]);
+      modifierMap[a][1] = false;
     }
   }
 
   // get layer, fn1 prioritized
   if (layerMap[0][1]) {
     Keyboard.press(keymap_fn1[i][j]);
+    layerMap[0][1] = false;
   } else if (layerMap[1][1]) {
     Keyboard.press(keymap_fn2[i][j]);
+    layerMap[1][1] = false;
   } else {
     Keyboard.press(keymap_default[i][j]);
   }
 }
 
+// return true is the key selected at input and out is a mod or layer
+// also set corresponding bool flag in the map
 bool isModOrLayer(int input, int output) {
   int key = keymap_default[output][input];
   bool result = false;
@@ -200,16 +200,7 @@ bool isModOrLayer(int input, int output) {
   return result;
 }
 
-bool alphaPressAfterMod = false;  // has alpha been selected when modOrLayerKeyPressed = true
-bool isAlphaAfterMod(int input, int output) {
-  int key = keymap_default[output][input];
-  if (modOrLayerKeyPressed && !isModOrLayer(input, output)) {
-    Serial.println("isAlphaAfterMod: alpha after mod key pressed");
-    return true;
-  }
-  return false;
-}
-
+// helper function, print info of input and output
 void printKey(int input, int output) {
   Serial.print(", output row: ");
   Serial.print(output);
