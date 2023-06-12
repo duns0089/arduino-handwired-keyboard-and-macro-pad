@@ -76,8 +76,8 @@ bool shiftPressed = false;
 bool fn1Pressed = false;
 bool fn2Pressed = false;
 
-bool keyPressed = false;          // a key in the cycle has been pressed, cycle being the for loop for each input
-bool modOrLayerKeyPressed = false;         // has mod been selected, wiped after release
+bool keyPressed = false;            // a key in the cycle has been pressed, cycle being the for loop for each input
+bool modOrLayerKeyPressed = false;  // has mod been selected, wiped after release
 
 // Press speed and delay configuration
 int postOutputToLowDelayMicroseconds = 5;     // 5
@@ -185,25 +185,18 @@ bool isModOrLayer(int input, int output) {
   int key = keymap_default[output][input];
   bool result = false;
   for (int i = 0; i < modCount; i++) {
-    // temp shift as layer, should move to mod combo
-    if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
-      shiftPressed = true;
-    }
-
-    // layer
-    if (key == layerMap[i][0]) {
-      layerMap[i][1] = true;
-      result = true;
-    }
-
-    // mod
     if (key == modifierMap[i][0]) {
       modifierMap[i][1] = true;
-      // Keyboard.press(modifierMap[i][0]);
       result = true;
     }
   }
 
+  for (int i = 0; i < layerCount; i++) {
+    if (key == layerMap[i][0]) {
+      layerMap[i][1] = true;
+      result = true;
+    }
+  }
   return result;
 }
 
